@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django_extensions.db.fields import AutoSlugField
 
 
 class Event(models.Model):
@@ -13,6 +14,7 @@ class Event(models.Model):
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
     attendees = models.ManyToManyField(User)
+    slug = AutoSlugField(populate_from='name')
     creator = models.ForeignKey(User, related_name='created_events', on_delete=models.CASCADE)
     full = models.BooleanField(default=False)    
     objects = models.Manager()
