@@ -4,19 +4,21 @@ from rest_framework.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
 from events.models import Event
+from .permissions import IsOwnerOrReadOnly
 from .serializers import EventSerializer
 
 
 class EventList(viewsets.ViewSet):
     serializer_class = EventSerializer
     filter_backends = [filters.SearchFilter]
-    search_fields = ['description'] 
+    search_fields = ['name', 'creator__username'] 
+    permission_classes = [IsOwnerOrReadOnly]
 
     def get_queryset(self):
         queryset = Event.objects.all()
         search_param = self.request.query_params.get('search')
         if search_param:
-            queryset = queryset.filter(Q(description__icontains=search_param))
+            queryset = queryset.filter(Q(name__icontains=search_param) | Q(creator__username__iexact=search_param))
         return queryset
 
     def list(self, request):
