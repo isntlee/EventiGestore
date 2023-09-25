@@ -13,7 +13,6 @@ class Event(models.Model):
     description = models.TextField()
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
-    attendees = models.ManyToManyField(User, related_name='events_attending')
     slug = AutoSlugField(populate_from='name')
     creator = models.ForeignKey(User, related_name='created_events', on_delete=models.CASCADE)
     full = models.BooleanField(default=False)    
@@ -22,6 +21,16 @@ class Event(models.Model):
 
     class Meta:
         ordering = ('start_date',)
-    
+
     def __str__(self):
         return self.name 
+    
+
+class Attendee(models.Model):
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='events_attending')
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='attendees')
+
+    def __str__(self):
+        return f"{self.event.name}-{self.user.username}" 
+    
