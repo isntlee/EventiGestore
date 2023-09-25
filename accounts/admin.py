@@ -20,7 +20,7 @@ class UserAdmin(admin.ModelAdmin):
         ),
         (("Dates"), {"fields": ("last_login", "date_joined")}),
     )
-    list_display = ["username", "is_superuser"]
+    list_display = ["username", "is_superuser", "slug"]
     search_fields = ["username"]
 
 admin.site.register(models.User, UserAdmin)
