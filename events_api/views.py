@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
-from events.models import Event, Attendee
+from events.models import Event
 from .permissions import IsOwnerOrReadOnly
 from .serializers import EventSerializer
 
@@ -59,9 +59,9 @@ class RegisterForEventView(viewsets.ViewSet):
     def post(self, request, pk=None):
         event = get_object_or_404(Event, slug=pk)
         user = request.user
-        if Attendee.objects.filter(user=user, event=event):
-            Attendee.objects.filter(user=user, event=event).delete()
+        if Event.objects.filter(attendees=user, slug=event):
+            event.attendees.remove(user)
             return Response({'message': 'User removed from event'}, status=status.HTTP_204_NO_CONTENT)
         else:
-            Attendee.objects.create(user=user, event=event)
+            event.attendees.add(user)
             return Response({'message': 'User added to event'}, status=status.HTTP_201_CREATED)

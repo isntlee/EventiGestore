@@ -14,8 +14,11 @@ class Event(models.Model):
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
     slug = AutoSlugField(populate_from='name')
+    attendees = models.ManyToManyField(User, related_name='events_attending')
     creator = models.ForeignKey(User, related_name='created_events', on_delete=models.CASCADE)
-    full = models.BooleanField(default=False)    
+    full = models.BooleanField(default=False)  
+
+    # Let's reconsider these two below..  
     objects = models.Manager()
     eventobjects = EventObjects()
 
@@ -24,13 +27,3 @@ class Event(models.Model):
 
     def __str__(self):
         return self.name 
-    
-
-class Attendee(models.Model):
-
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='events_attending')
-    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='attendees')
-
-    def __str__(self):
-        return f"{self.event.name}-{self.user.username}" 
-    
