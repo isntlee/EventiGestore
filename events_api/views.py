@@ -1,3 +1,5 @@
+import pytz
+
 from rest_framework import viewsets, status, filters
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
@@ -6,6 +8,8 @@ from django.db.models import Q
 from events.models import Event
 from .permissions import IsOwnerOrReadOnly
 from .serializers import EventSerializer
+from datetime import datetime
+
 
 
 class EventList(viewsets.ViewSet):
@@ -59,9 +63,22 @@ class RegisterForEventView(viewsets.ViewSet):
     def post(self, request, pk=None):
         event = get_object_or_404(Event, slug=pk)
         user = request.user
-        if Event.objects.filter(attendees=user, slug=event):
-            event.attendees.remove(user)
-            return Response({'message': 'User removed from event'}, status=status.HTTP_204_NO_CONTENT)
+
+        if self.is_future_event(event.start_date):
+            if event.attendees.filter(pk=user.pk).exists():
+                event.attendees.remove(user)
+                message = 'User removed from event'
+                status_code = status.HTTP_204_NO_CONTENT
+            else:
+                event.attendees.add(user)
+                message = 'User added to event'
+                status_code = status.HTTP_201_CREATED
         else:
-            event.attendees.add(user)
-            return Response({'message': 'User added to event'}, status=status.HTTP_201_CREATED)
+            message = 'Unable to access past events'
+            status_code = status.HTTP_204_NO_CONTENT
+
+        return Response({'message': message}, status=status_code)
+
+    def is_future_event(self, event_datetime):
+        current_time = datetime.now(pytz.timezone('UTC'))
+        return event_datetime > current_time
