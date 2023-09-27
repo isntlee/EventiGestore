@@ -1,8 +1,7 @@
-import pytz
-
 from rest_framework import viewsets, status, filters
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
+from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
 from events.models import Event
@@ -10,22 +9,26 @@ from .permissions import IsOwnerOrReadOnly
 from .serializers import EventSerializer
 from datetime import datetime
 
+import pytz
 
 
 class EventList(viewsets.ViewSet):
     serializer_class = EventSerializer
     filter_backends = [filters.SearchFilter]
-    search_fields = ['name', 'creator__username'] 
-    permission_classes = [IsOwnerOrReadOnly]
+    search_fields = ['name', 'creator__username']
+    permission_classes = [IsOwnerOrReadOnly, IsAuthenticated]
 
     def get_queryset(self):
+        print('\n\n Here.. #1 \n\n')
         queryset = Event.objects.all()
         search_param = self.request.query_params.get('search')
         if search_param:
-            queryset = queryset.filter(Q(name__icontains=search_param) | Q(creator__username__iexact=search_param))
+            queryset = queryset.filter(Q(name__icontains=search_param)|Q(creator__username__iexact=search_param))
         return queryset
 
     def list(self, request):
+        req_obj = request.authenticators
+        print('\n\n', req_obj, '\n\n')
         serializer = self.serializer_class(self.get_queryset(), many=True)
         return Response(serializer.data)
     
