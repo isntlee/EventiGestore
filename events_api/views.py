@@ -16,7 +16,7 @@ class EventList(viewsets.ViewSet):
     serializer_class = EventSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['name', 'creator__username']
-    permission_classes = [IsOwnerOrReadOnly, IsAuthenticated]
+    permission_classes = [IsOwnerOrReadOnly]
 
     def get_queryset(self):
         print('\n\n Here.. #1 \n\n')
