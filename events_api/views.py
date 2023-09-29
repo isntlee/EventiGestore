@@ -19,7 +19,6 @@ class EventList(viewsets.ViewSet):
     permission_classes = [IsOwnerOrReadOnly]
 
     def get_queryset(self):
-        print('\n\n Here.. #1 \n\n')
         queryset = Event.objects.all()
         search_param = self.request.query_params.get('search')
         if search_param:
@@ -28,7 +27,6 @@ class EventList(viewsets.ViewSet):
 
     def list(self, request):
         req_obj = request.authenticators
-        print('\n\n', req_obj, '\n\n')
         serializer = self.serializer_class(self.get_queryset(), many=True)
         return Response(serializer.data)
     

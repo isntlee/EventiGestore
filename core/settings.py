@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'accounts',
     'rest_framework',
     'django_extensions',
+    'rest_framework_simplejwt',
 ]
 
 MIDDLEWARE = [
@@ -108,6 +109,9 @@ AUTH_USER_MODEL = 'accounts.User'
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.AllowAny',
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
 }
 
